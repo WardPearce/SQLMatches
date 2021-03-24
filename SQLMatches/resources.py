@@ -25,7 +25,7 @@ import os
 import socketio
 import aioftp
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 from backblaze.bucket.awaiting import AwaitingBucket
 from aiohttp import ClientSession
