@@ -7,6 +7,7 @@ This is the development edge branch, code might **not work**. Please use the mas
 - ~~Improve `Config` singleton to use initialized objects instead of redefined vars.~~
 - ~~Include `status_code` in exceptions.~~
 - Merge non API functionality into [Base](https://github.com/SQLMatches/Base/tree/Edge).
+- Increase hosted version max upload to 150 MB.
 - Improve `DemoQueue` to not be some messy dict.
 - Use [GetPublishedFileDetails](https://steamapi.xpaw.me/#ISteamRemoteStorage/GetPublishedFil) to get workshop map images.
 - Indepth scoping.
