@@ -86,42 +86,38 @@ class SQLMatches(Starlette):
                  database_settings: DatabaseSettings,
                  stripe_settings: StripeSettings,
                  smtp_settings: SmtpSettings,
-                 friendly_url: str,
+                 backend_url: str,
                  frontend_url: str,
                  root_steam_id: str,
-                 system_email: str,
                  upload_settings: Tuple[
                      B2UploadSettings, LocalUploadSettings] = None,
                  map_images: Dict[str, str] = MAP_IMAGES,
-                 upload_delay: float = 0.00001,
                  free_upload_size: float = 30.0,
                  max_upload_size: float = 100.0,
                  timestamp_format: str = "%m/%d/%Y-%H:%M:%S",
                  community_types: List[str] = COMMUNITY_TYPES,
                  webhook_settings: WebhookSettings = WebhookSettings(),
-                 match_max_length: timedelta = timedelta(hours=3),
+                 match_timeout: timedelta = timedelta(hours=3),
                  demo_expires: timedelta = timedelta(weeks=20),
-                 subscription_length: timedelta = timedelta(days=31),
                  clear_cache: bool = True,
                  **kwargs) -> None:
-        """SQLMatches API.
+        """SQLMatches' API
 
         Parameters
         ----------
         database_settings : DatabaseSettings
         stripe_settings : StripeSettings
-        friendly_url : str
+        smtp_settings : SmtpSettings
+        backend_url : str
         frontend_url : str
         root_steam_id : str
-        system_email : str
-        upload_settings : [B2UploadSettings, LocalUploadSettings], optional
+        upload_settings : Tuple[B2UploadSettings,
+                                LocalUploadSettings], optional
             by default None
         map_images : Dict[str, str], optional
             by default MAP_IMAGES
-        upload_delay : float, optional
-            by default 0.00001
         free_upload_size : float, optional
-            by default 50.0
+            by default 30.0
         max_upload_size : float, optional
             by default 100.0
         timestamp_format : str, optional
@@ -130,12 +126,12 @@ class SQLMatches(Starlette):
             by default COMMUNITY_TYPES
         webhook_settings : WebhookSettings, optional
             by default WebhookSettings()
-        match_max_length : timedelta, optional
+        match_timeout : timedelta, optional
             by default timedelta(hours=3)
-        clear_cache : bool, optional
-            by default True
         demo_expires : timedelta, optional
             by default timedelta(weeks=20)
+        clear_cache : bool, optional
+            by default True
         """
 
         startup_tasks = [self._startup]
@@ -172,18 +168,17 @@ class SQLMatches(Starlette):
         else:
             exception_handlers = ERROR_HANDLERS
 
-        if friendly_url[:1] != "/":
-            friendly_url += "/"
+        if backend_url[:1] != "/":
+            backend_url += "/"
 
         if frontend_url[:1] != "/":
             frontend_url += "/"
 
-        Config.url = friendly_url
         Config.map_images = map_images
-        Config.upload_delay = upload_delay
+
         Config.free_upload_size = free_upload_size
         Config.max_upload_size = max_upload_size
-        Config.timestamp_format = timestamp_format
+
         Config.root_steam_id_hashed = bcrypt.hashpw(
             root_steam_id.encode(), bcrypt.gensalt()
         )
@@ -191,18 +186,16 @@ class SQLMatches(Starlette):
             (KeyLoader("webhook").load()).encode(), bcrypt.gensalt()
         )
 
-        Config.webhook_timeout = webhook_settings.timeout
-        Config.webhook_match_end = webhook_settings.match_end
-        Config.webhook_match_start = webhook_settings.match_start
-        Config.webhook_round_end = webhook_settings.round_end
-        Config.webhook_key = webhook_settings.key
+        Config.webhook = webhook_settings
+        Config.smtp = smtp_settings
+        Config.stripe = stripe_settings
 
-        Config.match_max_length = match_max_length
-        Config.system_email = system_email
+        Config.timestamp_format = timestamp_format
+        Config.backend_url = backend_url
         Config.frontend_url = frontend_url
+
+        Config.match_timeout = match_timeout
         Config.demo_expires = demo_expires
-        Config.price_id = stripe_settings.price_id
-        Config.subscription_length = subscription_length
 
         self.community_types = community_types
         self.clear_cache = clear_cache
@@ -243,11 +236,7 @@ class SQLMatches(Starlette):
         Sessions.ftp = aioftp.Client()
 
         if upload_settings:
-            Config.demo_pathway = upload_settings.pathway
-            Config.demo_extension = upload_settings.extension
-
             if isinstance(upload_settings, B2UploadSettings):
-                Config.cdn_url = upload_settings.cdn_url
                 Config.upload_type = B2UploadSettings
 
                 self.b2 = backblaze.Awaiting(
@@ -260,7 +249,6 @@ class SQLMatches(Starlette):
                 )
 
             elif isinstance(upload_settings, LocalUploadSettings):
-                Config.cdn_url = None
                 Config.upload_type = LocalUploadSettings
 
                 # Dynamically adding mount if local storage.
@@ -272,7 +260,7 @@ class SQLMatches(Starlette):
                         mount.app.routes.append(
                             Mount(
                                 "/demos/",
-                                StaticFiles(directory=Config.demo_pathway)
+                                StaticFiles(directory=upload_settings.pathway)
                             )
                         )
                         break
@@ -280,6 +268,8 @@ class SQLMatches(Starlette):
                 logger.warning(
                     "Using local storage for demos, use b2 for production."
                 )
+            else:
+                raise Exception("Invalid `upload_settings` class.")
         else:
             Config.upload_type = None
 

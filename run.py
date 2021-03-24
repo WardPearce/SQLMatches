@@ -47,13 +47,13 @@ app = SQLMatches(
     smtp_settings=SmtpSettings(
         hostname="127.0.0.1",
         port=25,
-        use_tls=False
+        use_tls=False,
+        email="noreply@127.0.0.1"
     ),
     upload_settings=LocalUploadSettings(),
-    friendly_url="http://localhost/api",
+    backend_url="http://localhost/api",
     frontend_url="http://localhost",
-    root_steam_id="76561198077228213",
-    system_email="noreply@127.0.0.1"
+    root_steam_id="76561198077228213"
 )
 
 

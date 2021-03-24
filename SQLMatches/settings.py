@@ -20,9 +20,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
+from datetime import timedelta
 from os import path, mkdir
-
-from .resources import Config
 
 
 class DatabaseSettings:
@@ -67,8 +66,6 @@ class DatabaseSettings:
             self.alchemy_engine = "psycopg2"
         else:
             raise Exception("Unsupported databae engine")
-
-        Config.db_engine = engine
 
 
 class __Extension:
@@ -142,6 +139,7 @@ class LocalUploadSettings(__Extension):
 
 class StripeSettings:
     def __init__(self, api_key: str, price_id: str,
+                 subscription_length: timedelta = timedelta(days=31),
                  testing: bool = False) -> None:
         """Used to set stripe settings.
 
@@ -151,6 +149,8 @@ class StripeSettings:
             Don't include 'sk_test_' or 'sk_live_'
         price_id : str
             Stripe price ID, created on dashboard.
+        subscription_length : timedelta, optional
+            by default timedelta(days=31)
         testing : bool, optional
             by default False
         """
@@ -158,15 +158,18 @@ class StripeSettings:
         self.api_key = api_key
         self.price_id = price_id
         self.testing = testing
+        self.subscription_length = subscription_length
 
 
 class SmtpSettings:
-    def __init__(self, hostname: str, port: int, use_tls: bool = True,
-                 username: str = None, password: str = None) -> None:
+    def __init__(self, email: str, hostname: str, port: int,
+                 use_tls: bool = True, username: str = None,
+                 password: str = None) -> None:
         """SMTP Connection settings.
 
         Parameters
         ----------
+        email : str
         hostname : str
         port : int
         use_tls : bool, optional
@@ -174,6 +177,7 @@ class SmtpSettings:
         password : str, optional
         """
 
+        self.email = email
         self.hostname = hostname
         self.port = port
         self.use_tls = use_tls

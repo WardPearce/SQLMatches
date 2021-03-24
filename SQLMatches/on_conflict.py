@@ -34,7 +34,7 @@ def on_scoreboard_conflict() -> Any:
     """Used for updating a player on a scoreboard on conflict.
     """
 
-    if Config.db_engine == "mysql":
+    if Config.database.engine == "mysql":
         query_insert = mysql_insert(scoreboard_table)
         return query_insert.on_duplicate_key_update(
             team=query_insert.inserted.team,
@@ -53,7 +53,7 @@ def on_scoreboard_conflict() -> Any:
             score=scoreboard_table.c.score + query_insert.inserted.score,
             disconnected=query_insert.inserted.disconnected
         )
-    elif Config.db_engine == "psycopg2":
+    elif Config.database.engine == "psycopg2":
         query_insert = postgresql_insert(scoreboard_table)
         return query_insert.on_conflict_do_update(
             set_=dict(
@@ -84,13 +84,13 @@ def on_user_conflict() -> Any:
     """Used for updating a users on conflict.
     """
 
-    if Config.db_engine == "mysql":
+    if Config.database.engine == "mysql":
         query_insert = mysql_insert(user_table)
         return query_insert.on_duplicate_key_update(
             name=query_insert.inserted.name,
             timestamp=query_insert.inserted.timestamp
         )
-    elif Config.db_engine == "psycopg2":
+    elif Config.database.engine == "psycopg2":
         query_insert = postgresql_insert(user_table)
         return query_insert.on_conflict_do_update(
             set_=dict(
@@ -106,7 +106,7 @@ def on_statistic_conflict() -> Any:
     """Used for updating a statistics on conflict.
     """
 
-    if Config.db_engine == "mysql":
+    if Config.database.engine == "mysql":
         query_insert = mysql_insert(statistic_table)
         return query_insert.on_duplicate_key_update(
             kills=statistic_table.c.kills + query_insert.inserted.kills,
@@ -120,7 +120,7 @@ def on_statistic_conflict() -> Any:
             query_insert.inserted.shots_hit,
             mvps=statistic_table.c.mvps + query_insert.inserted.mvps
         )
-    elif Config.db_engine == "psycopg2":
+    elif Config.database.engine == "psycopg2":
         query_insert = postgresql_insert(statistic_table)
         return query_insert.on_conflict_do_update(
             set_=dict(

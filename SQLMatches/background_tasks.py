@@ -131,7 +131,7 @@ async def match_ender() -> None:
         ).where(
             and_(
                 scoreboard_total_table.c.status == 1,
-                datetime.now() + Config.match_max_length >=
+                datetime.now() + Config.match_timeout >=
                 scoreboard_total_table.c.timestamp
             )
         )

@@ -25,7 +25,7 @@ import os
 import socketio
 import aioftp
 
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from backblaze.bucket.awaiting import AwaitingBucket
 from aiohttp import ClientSession
@@ -33,6 +33,14 @@ from databases import Database
 from aiocache import Cache
 from datetime import timedelta
 from aiosmtplib import SMTP
+
+from .settings import (
+    B2UploadSettings,
+    DatabaseSettings,
+    SmtpSettings,
+    StripeSettings,
+    WebhookSettings
+)
 
 
 class Sessions:
@@ -55,37 +63,29 @@ class Config:
         current_dir,
         "maps"
     )
-    plugin_dir = os.path.join(
-        current_dir,
-        "plugins"
-    )
     steam_openid_url = "https://steamcommunity.com/openid/login"
-    upload_type: Any
-    url: str
-    map_images: str
-    db_engine: str
-    demo_extension: str
-    cdn_url: str
-    demo_pathway: str
-    upload_delay: float
+
+    stripe: StripeSettings
+    webhook: WebhookSettings
+    upload: B2UploadSettings
+    smtp: SmtpSettings
+    database: DatabaseSettings
+
+    match_timeout: timedelta
+    demo_expires: timedelta
+
     free_upload_size: float
     max_upload_size: float
-    timestamp_format: str
-    root_steam_id_hashed: Any
-    root_webhook_key_hashed: Any
-    # Type string, type ID
-    community_types: Dict[str, int] = {}
-    webhook_timeout: int
-    webhook_match_start: str
-    webhook_match_end: str
-    webhook_round_end: str
-    webhook_key: str
-    match_max_length: timedelta
-    demo_expires: timedelta
-    subscription_length: timedelta
-    system_email: str
+
     frontend_url: str
-    price_id: str
+    backend_url: str
+    timestamp_format: str
+
+    map_images: list
+
+    upload_type: Any
+
+    community_types: Dict[str, int] = {}
 
 
 class DemoQueue:

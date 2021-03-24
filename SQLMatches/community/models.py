@@ -140,7 +140,7 @@ class MatchModel:
         self.team_1_side = team_1_side
         self.team_2_side = team_2_side
         self.cover_image = "{}maps/{}".format(
-            Config.url,
+            Config.backend_url,
             Config.map_images[self.map] if self.map in Config.map_images
             else "invalid.png"
         )
@@ -312,7 +312,7 @@ class ServerModel:
         self.max_players = max_players
         self.map = map
         self.cover_image = "{}maps/{}".format(
-            Config.url,
+            Config.backend_url,
             Config.map_images[self.map] if self.map in Config.map_images
             else "invalid.png"
         )

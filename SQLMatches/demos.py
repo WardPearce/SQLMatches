@@ -66,12 +66,12 @@ class Demo:
 
     @property
     def __file_name(self) -> str:
-        return self.match.match_id + Config.demo_extension
+        return self.match.match_id + Config.upload.extension
 
     @property
     def __demo_pathway(self) -> str:
         pathway = path.join(
-            Config.demo_pathway,
+            Config.upload.pathway,
             self.__file_name
         )
 
@@ -186,8 +186,6 @@ class Demo:
                 await f.write(chunk)
                 total_size += len(chunk)
 
-                await asyncio.sleep(Config.upload_delay)
-
             if await self.__invalid_upload(total_size):
                 await f.truncate()
                 return False
@@ -224,8 +222,6 @@ class Demo:
 
                 total_size += len(chunked)
                 chunked = b""
-
-            await asyncio.sleep(Config.upload_delay)
 
         if chunked:
             if parts.part_number == 0:

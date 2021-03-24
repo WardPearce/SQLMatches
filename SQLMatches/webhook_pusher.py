@@ -51,7 +51,7 @@ class WebhookPusher:
         try:
             await Sessions.aiohttp.post(
                 url,
-                timeout=Config.webhook_timeout,
+                timeout=Config.webhook.timeout,
                 json=self.data,
                 auth=BasicAuth("", key)
             )
@@ -89,7 +89,7 @@ class WebhookPusher:
             await self.__post(row[0], row[1])
 
         if global_webhook:
-            await self.__post(global_webhook, Config.webhook_key)
+            await self.__post(global_webhook, Config.webhook.key)
 
     async def round_end(self) -> None:
         """Used to push round end webhook.
@@ -97,7 +97,7 @@ class WebhookPusher:
 
         await self.__send(
             community_table.c.round_end_webhook,
-            Config.webhook_round_end
+            Config.webhook.round_end
         )
 
     async def match_end(self) -> None:
@@ -106,7 +106,7 @@ class WebhookPusher:
 
         await self.__send(
             community_table.c.match_end_webhook,
-            Config.webhook_match_end
+            Config.webhook.match_end
         )
 
     async def match_start(self) -> None:
@@ -115,5 +115,5 @@ class WebhookPusher:
 
         await self.__send(
             community_table.c.match_start_webhook,
-            Config.webhook_match_start
+            Config.webhook.match_start
         )

@@ -183,7 +183,7 @@ class Community:
             }
         ), "html", "utf-8")
 
-        message["From"] = Config.system_email
+        message["From"] = Config.smtp.email
         message["To"] = community.email
         message["Subject"] = "{} - {}".format(
             title,
@@ -196,7 +196,7 @@ class Community:
         await Sessions.database.execute(
             community_table.update().values(
                 subscription_expires=datetime.now() +
-                Config.subscription_length
+                Config.stripe.subscription_length
             ).where(
                 community_table.c.community_name == self.community_name
             )
@@ -244,7 +244,7 @@ class Community:
         ).create_checkout_session(
             cancel_url=owner_url + "cancel",
             success_url=owner_url + "success",
-            price_id=Config.price_id
+            price_id=Config.stripe.price_id
         )
 
     @validate_webhooks

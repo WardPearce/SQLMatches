@@ -44,17 +44,17 @@ class DownloadPage(HTTPEndpoint):
 
         if Config.upload_type == B2UploadSettings:
             return RedirectResponse(
-                Config.cdn_url +
-                Config.demo_pathway +
+                Config.upload.cdn_url +
+                Config.upload.pathway +
                 "/" +
                 request.path_params["match_id"] +
-                Config.demo_extension
+                Config.upload.extension
             )
         elif Config.upload_type == LocalUploadSettings:
             return RedirectResponse(
                 "/api/demos/" +
                 request.path_params["match_id"] +
-                Config.demo_extension
+                Config.upload.extension
             )
         else:
             return PlainTextResponse("Demos aren't enabled!")

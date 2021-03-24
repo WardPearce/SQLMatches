@@ -42,11 +42,11 @@ class SteamLogin(HTTPEndpoint):
             "http://specs.openid.net/auth/2.0/identifier_select",
             "openid.mode": "checkid_setup",
             "openid.return_to": "{}steam/validate?return={}".format(
-                Config.url,
+                Config.backend_url,
                 request.query_params["return"] if
                 "return" in request.query_params else "/"
             ),
-            "openid.realm": Config.url,
+            "openid.realm": Config.backend_url,
         }
 
         return RedirectResponse(
