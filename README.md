@@ -1,32 +1,41 @@
+# Edge Branch
+
+This is the development edge branch, code might **not work**. Please use the master branch for production.
+
 # Help support SQLMatches development & hosting
+
 - [Subscribe](https://sqlmatches.com/) to SQLMatches on the 'Owner Panel' under the 'Subscriptions / Billing' tab.
 - [Donate via PayPal](https://www.paypal.com/donate?hosted_button_id=ZGS5RJ9FC94GQ)
 
-
 #### ✨ Help show support by starring this repo! Watch it to get notifications when updated. ✨
+
 ![sellout](https://tinyurl.com/y6br8dx3)
 
 ## Setup
+
 ### Hosted version
+
 - Visit [SQLMatches.com](https://sqlmatches.com) & follow the video.
 - Follow the setup section on the [Plugin](https://github.com/SQLMatches/Plugins#setup) repo.
 
 ### Self-hosing
+
 - Install SQLMatches with ``pip3 install SQLMatches --upgrade``.
 - Create a file like [run.py](/run.py).
 - Set up [uvicorn](https://www.uvicorn.org/deployment/) with Starlette.
-    - I recommend running [Nginx as a reverse proxy](http://www.uvicorn.org/deployment/#running-behind-nginx).
-        - [Production Config](/nginx/production.conf)
-        - [Development Config](/nginx/development.conf)
-    - Use a UDS (UNIX domain socket) for production.
-        - e.g. `uvicorn.run(app, uds="/tmp/uvicorn.sock", log_level="warning")`
-    - SSL with [Certbot](https://certbot.eff.org/).
-    - Setup a SMTP server, I use [Postfix](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-postfix-as-a-send-only-smtp-server-on-ubuntu-18-04).
-    - Build the [Frontend](https://github.com/SQLMatches/Frontend) or run it in development mode.
-        - If building, make sure to edit line [16](https://github.com/SQLMatches/API/blob/master/nginx/production.conf#L16) & [48](https://github.com/SQLMatches/API/blob/master/nginx/production.conf#L48) to the location of the built frontend.
+  - I recommend running [Nginx as a reverse proxy](http://www.uvicorn.org/deployment/#running-behind-nginx).
+    - [Production Config](/nginx/production.conf)
+    - [Development Config](/nginx/development.conf)
+  - Use a UDS (UNIX domain socket) for production.
+    - e.g. `uvicorn.run(app, uds="/tmp/uvicorn.sock", log_level="warning")`
+  - SSL with [Certbot](https://certbot.eff.org/).
+  - Setup a SMTP server, I use [Postfix](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-postfix-as-a-send-only-smtp-server-on-ubuntu-18-04).
+  - Build the [Frontend](https://github.com/SQLMatches/Frontend) or run it in development mode.
+    - If building, make sure to edit line [16](https://github.com/SQLMatches/API/blob/master/nginx/production.conf#L16) & [48](https://github.com/SQLMatches/API/blob/master/nginx/production.conf#L48) to the location of the built frontend.
 - Run [run.py](/website/run.py) using PM2 or screen.
 
 ## Thanks to
+
 - [WardPearce](https://github.com/WardPearce) - [backblaze](https://github.com/WardPearce/backblaze) - Contributor - Maintainer
 - [encode](https://www.encode.io/) - [databases](https://www.encode.io/databases/) - [uvicorn](http://www.uvicorn.org/) - [starlette](https://www.starlette.io/)
 - [Pallets Projects](https://palletsprojects.com/) - [Jinja2](https://jinja.palletsprojects.com/en/2.11.x/)
