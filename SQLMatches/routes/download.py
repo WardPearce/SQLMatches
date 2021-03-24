@@ -57,4 +57,4 @@ class DownloadPage(HTTPEndpoint):
                 Config.upload.extension
             )
         else:
-            return PlainTextResponse("Demos aren't enabled!")
+            return PlainTextResponse("Demos aren't enabled!", status_code=404)
