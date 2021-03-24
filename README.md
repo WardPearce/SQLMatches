@@ -21,3 +21,9 @@ This is the development edge branch, code might **not work**. Please use the mas
 - Add Public / Private data support for `CacheBase`.
 - Change `stripe_webhook` scope to use stripes validation method instead of a key.
 - Change scopes to be `camel cased`.
+- Add Autosetup.
+- Custom logos
+- Owning multiple communities.
+- Custom domain.
+- Admin tools.
+- Match mangement.
