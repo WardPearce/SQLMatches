@@ -21,7 +21,6 @@ DEALINGS IN THE SOFTWARE.
 """
 
 
-import asyncio
 import logging
 import aiofiles
 

@@ -40,7 +40,6 @@ from .api.matches import (
     MatchesAPI
 )
 from .api.players import CommunityPlayersAPI
-from .api.misc import SchemaAPI
 from .api.community import (
     CommunityOwnerAPI,
     CommunityCreateAPI,
@@ -146,7 +145,6 @@ ROUTES = [
             Route("/plugins/", SavePluginAPI),
             Route("/", AdminAPI)
         ]),
-        Route("/schema/", SchemaAPI, include_in_schema=False)
     ]),
     Mount("/ws/", socketio.ASGIApp(Sessions.websocket)),
     Mount("/webhook", routes=[

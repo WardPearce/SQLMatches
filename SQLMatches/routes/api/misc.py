@@ -19,13 +19,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-
-from starlette.endpoints import HTTPEndpoint
-from starlette.requests import Request
-
-from ...constants import SCHEMAS
-
-
-class SchemaAPI(HTTPEndpoint):
-    async def get(self, request: Request):
-        return SCHEMAS.OpenAPIResponse(request)
