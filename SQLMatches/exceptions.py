@@ -25,15 +25,9 @@ class SQLMatchesException(Exception):
     """Base Exception for SQLMatches.
     """
 
-    def __init__(self, msg="SQLMatches Exception", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
-
-
-class UnSupportedEngine(SQLMatchesException):
-    """Raised when the database engine isn't supported.
-    """
-
-    def __init__(self, msg="SQL Engine not supported", *args, **kwargs):
+    def __init__(self, msg: str = "Internal error", status_code: int = 500,
+                 *args, **kwargs):
+        self.status_code = status_code
         super().__init__(msg, *args, **kwargs)
 
 
@@ -41,24 +35,27 @@ class CommunityTaken(SQLMatchesException):
     """Raised when community name is taken.
     """
 
-    def __init__(self, msg="Community name taken", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Community name taken",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
-class AlreadyCommunity(SQLMatchesException):
-    """Raised when user already owns a community.
+class MaxCommunities(SQLMatchesException):
+    """Raised when user has reached community limit.
     """
 
-    def __init__(self, msg="User already owns a community", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Community limit reached",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidCommunity(SQLMatchesException):
     """Raised when community ID doesn't exist.
     """
 
-    def __init__(self, msg="Invalid Community ID", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid community",
+                 status_code: int = 404, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class NoOwnership(SQLMatchesException):
@@ -73,32 +70,36 @@ class InvalidMatchID(SQLMatchesException):
     """Raised when match ID is invalid.
     """
 
-    def __init__(self, msg="Invalid Match ID", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid Match ID", status_code: int = 404,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidAPIKey(SQLMatchesException):
     """Raised when API key is invalid.
     """
 
-    def __init__(self, msg="Invalid API Key", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid API Key", status_code: int = 401,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class DemoAlreadyUploaded(SQLMatchesException):
     """Raised when a demo has already been uploaded.
     """
 
-    def __init__(self, msg="Demo already uploaded", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Demo already uploaded",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidSteamID(SQLMatchesException):
     """Raised when Steam ID isn't valid
     """
 
-    def __init__(self, msg="Invalid Steam ID", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid Steam ID", status_code: int = 404,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidCommunityName(SQLMatchesException):
@@ -106,69 +107,78 @@ class InvalidCommunityName(SQLMatchesException):
        or character length is above 32 or below 4.
     """
 
-    def __init__(self, msg="Commany Name not alphanumeric", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Community name invalid",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidCommunityType(SQLMatchesException):
     """Raised when community type isn't valid.
     """
 
-    def __init__(self, msg="Commany type invalid", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Commany type invalid",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class UserExists(SQLMatchesException):
     """Raised when user exists.
     """
 
-    def __init__(self, msg="User exists", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "User exists", status_code: int = 400,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidWebhook(SQLMatchesException):
     """Raised when webhook URL is invalid.
     """
 
-    def __init__(self, msg="Invalid webhook url", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid webhook url",
+                 status_code: int = 400, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidEmail(SQLMatchesException):
     """Raised when email is invalid.
     """
 
-    def __init__(self, msg="Invalid email", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid email", status_code: int = 400,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidCustomer(SQLMatchesException):
     """Raised when customer ID is invalid.
     """
 
-    def __init__(self, msg="Invalid stripe customer ID", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid stripe customer ID",
+                 status_code: int = 404, *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidVersion(SQLMatchesException):
     """Raised when version invalid.
     """
 
-    def __init__(self, msg="Invalid version", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid version", status_code: int = 404,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class ServerExists(SQLMatchesException):
     """Raised when server already exists.
     """
 
-    def __init__(self, msg="Server exists", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Server exists", status_code: int = 400,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)
 
 
 class InvalidServer(SQLMatchesException):
     """Raised when server doesn't exists.
     """
 
-    def __init__(self, msg="Invalid server", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
+    def __init__(self, msg: str = "Invalid server", status_code: int = 404,
+                 *args, **kwargs):
+        super().__init__(msg=msg, status_code=status_code, *args, **kwargs)

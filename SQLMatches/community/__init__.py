@@ -45,7 +45,7 @@ from ..user import create_user
 
 from ..exceptions import (
     CommunityTaken,
-    AlreadyCommunity,
+    MaxCommunities,
     NoOwnership,
     InvalidAPIKey,
     UserExists,
@@ -238,7 +238,7 @@ async def create_community(steam_id: str, community_name: str, email: str,
     ------
     CommunityTaken
         Raised when community name is taken.
-    AlreadyCommunity
+    MaxCommunities
         Raised when owner already owns a community.
     InvalidCommunityName
         Raised when community name isn't alphanumeric
@@ -255,7 +255,7 @@ async def create_community(steam_id: str, community_name: str, email: str,
         community_type_id = None
 
     if await owner_exists(steam_id):
-        raise AlreadyCommunity()
+        raise MaxCommunities()
 
     try:
         await create_user(steam_id, "Unknown")

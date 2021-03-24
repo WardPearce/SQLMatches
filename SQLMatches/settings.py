@@ -22,7 +22,6 @@ DEALINGS IN THE SOFTWARE.
 
 from os import path, mkdir
 
-from .exceptions import UnSupportedEngine
 from .resources import Config
 
 
@@ -67,7 +66,7 @@ class DatabaseSettings:
         elif engine == "postgresql":
             self.alchemy_engine = "psycopg2"
         else:
-            raise UnSupportedEngine()
+            raise Exception("Unsupported databae engine")
 
         Config.db_engine = engine
 

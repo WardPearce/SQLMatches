@@ -31,7 +31,7 @@ from ..settings import (
 )
 
 from ..community import create_community, Community
-from ..exceptions import AlreadyCommunity, CommunityTaken
+from ..exceptions import MaxCommunities, CommunityTaken
 
 from starlette.testclient import TestClient
 
@@ -83,7 +83,7 @@ class TestBase:
                 community_type=COMMUNITY_TYPES[0],
                 email=EMAIL
             )
-        except (CommunityTaken, AlreadyCommunity):
+        except (CommunityTaken, MaxCommunities):
             community = await Community(community_name=COMMUNITY_NAME).get()
 
         self.basic_auth = {
