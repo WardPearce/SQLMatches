@@ -2,6 +2,12 @@
 
 This is the development edge branch, code might **not work**. Please use the master branch for production.
 
+# Installing SQLMatches Base
+
+`SQLMatchesBase` is required, install with
+
+```pip3 install git+https://github.com/SQLMatches/Base.git@Edge```
+
 ### ToDo
 
 - ~~Improve `Config` singleton to use initialized objects instead of redefined vars.~~
