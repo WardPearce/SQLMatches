@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 import logging
 import bcrypt
 import backblaze
-import aioftp
 
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
@@ -34,34 +33,19 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 
+from SQLMatchesBase import SQLMatchesBase
 from typing import Dict, List, Tuple
-
 from datetime import timedelta
-
-from databases import Database
-from aiohttp import ClientSession
-from aiojobs import create_scheduler
 from aiocache import Cache
-from aiosmtplib import SMTP
 
-from .stripe import Stripe
-
-from .tables import create_tables
 from .resources import Sessions, Config
-from .settings import (
-    DatabaseSettings,
-    B2UploadSettings,
-    LocalUploadSettings,
-    StripeSettings,
-    SmtpSettings,
-    WebhookSettings
-)
+
+from .settings.upload import B2UploadSettings, LocalUploadSettings
+
 from .middlewares import APIAuthentication
 
 from .routes import ROUTES, ERROR_HANDLERS
 from .routes.errors import auth_error
-
-from .background_tasks import TASKS_TO_SPAWN
 
 from .misc import cache_community_types
 
@@ -82,12 +66,7 @@ logger = logging.getLogger("SQLMatches")
 
 
 class SQLMatches(Starlette):
-    def __init__(self,
-                 database_settings: DatabaseSettings,
-                 stripe_settings: StripeSettings,
-                 smtp_settings: SmtpSettings,
-                 backend_url: str,
-                 frontend_url: str,
+    def __init__(self, base_settings: SQLMatchesBase,
                  root_steam_id: str,
                  upload_settings: Tuple[
                      B2UploadSettings, LocalUploadSettings] = None,
@@ -96,43 +75,12 @@ class SQLMatches(Starlette):
                  max_upload_size: float = 100.0,
                  timestamp_format: str = "%m/%d/%Y-%H:%M:%S",
                  community_types: List[str] = COMMUNITY_TYPES,
-                 webhook_settings: WebhookSettings = WebhookSettings(),
                  match_timeout: timedelta = timedelta(hours=3),
                  demo_expires: timedelta = timedelta(weeks=20),
                  clear_cache: bool = True,
                  **kwargs) -> None:
-        """SQLMatches' API
 
-        Parameters
-        ----------
-        database_settings : DatabaseSettings
-        stripe_settings : StripeSettings
-        smtp_settings : SmtpSettings
-        backend_url : str
-        frontend_url : str
-        root_steam_id : str
-        upload_settings : Tuple[B2UploadSettings,
-                                LocalUploadSettings], optional
-            by default None
-        map_images : Dict[str, str], optional
-            by default MAP_IMAGES
-        free_upload_size : float, optional
-            by default 30.0
-        max_upload_size : float, optional
-            by default 100.0
-        timestamp_format : str, optional
-            by default "%m/%d/%Y-%H:%M:%S"
-        community_types : List[str], optional
-            by default COMMUNITY_TYPES
-        webhook_settings : WebhookSettings, optional
-            by default WebhookSettings()
-        match_timeout : timedelta, optional
-            by default timedelta(hours=3)
-        demo_expires : timedelta, optional
-            by default timedelta(weeks=20)
-        clear_cache : bool, optional
-            by default True
-        """
+        self.base_settings = base_settings
 
         startup_tasks = [self._startup]
         shutdown_tasks = [self._shutdown]
@@ -144,10 +92,15 @@ class SQLMatches(Starlette):
             shutdown_tasks = shutdown_tasks + kwargs["on_shutdown"]
 
         middlewares = [
-            Middleware(SessionMiddleware,
-                       secret_key=KeyLoader(name="session").load()),
-            Middleware(AuthenticationMiddleware, backend=APIAuthentication(),
-                       on_error=auth_error),
+            Middleware(
+                SessionMiddleware,
+                secret_key=KeyLoader(name="session").load()
+            ),
+            Middleware(
+                AuthenticationMiddleware,
+                backend=APIAuthentication(),
+                on_error=auth_error
+            ),
             Middleware(
                 CORSMiddleware,
                 allow_origins=["*"],
@@ -168,72 +121,21 @@ class SQLMatches(Starlette):
         else:
             exception_handlers = ERROR_HANDLERS
 
-        if backend_url[:1] != "/":
-            backend_url += "/"
-
-        if frontend_url[:1] != "/":
-            frontend_url += "/"
-
         Config.map_images = map_images
-
         Config.free_upload_size = free_upload_size
         Config.max_upload_size = max_upload_size
-
         Config.root_steam_id_hashed = bcrypt.hashpw(
             root_steam_id.encode(), bcrypt.gensalt()
         )
         Config.root_webhook_key_hashed = bcrypt.hashpw(
             (KeyLoader("webhook").load()).encode(), bcrypt.gensalt()
         )
-
-        Config.webhook = webhook_settings
-        Config.smtp = smtp_settings
-        Config.stripe = stripe_settings
-
         Config.timestamp_format = timestamp_format
-        Config.backend_url = backend_url
-        Config.frontend_url = frontend_url
-
         Config.match_timeout = match_timeout
         Config.demo_expires = demo_expires
 
         self.community_types = community_types
         self.clear_cache = clear_cache
-
-        database_url = "://{}:{}@{}:{}/{}?charset=utf8mb4".format(
-            database_settings.username,
-            database_settings.password,
-            database_settings.server,
-            database_settings.port,
-            database_settings.database
-        )
-
-        Sessions.database = Database(
-            database_settings.engine + database_url
-        )
-
-        create_tables(
-            "{}+{}{}".format(
-                database_settings.engine,
-                database_settings.alchemy_engine,
-                database_url
-            )
-        )
-
-        Sessions.smtp = SMTP(
-            hostname=smtp_settings.hostname,
-            port=smtp_settings.port,
-            use_tls=smtp_settings.use_tls,
-            password=smtp_settings.password,
-            username=smtp_settings.username
-        )
-
-        Sessions.stripe = Stripe(
-            stripe_settings.api_key,
-            stripe_settings.testing
-        )
-
-        Sessions.ftp = aioftp.Client()
 
         if upload_settings:
             if isinstance(upload_settings, B2UploadSettings):
@@ -286,9 +188,7 @@ class SQLMatches(Starlette):
         """Creates needed sessions.
         """
 
-        await Sessions.smtp.connect()
-        await Sessions.database.connect()
-        Sessions.aiohttp = ClientSession()
+        await self.base_settings.startup()
 
         try:
             Sessions.cache = Cache(Cache.REDIS)
@@ -305,22 +205,14 @@ class SQLMatches(Starlette):
         if Config.upload_type == B2UploadSettings:
             await self.b2.authorize()
 
-        self.background_tasks = await create_scheduler()
-        for to_spawn in TASKS_TO_SPAWN:
-            await self.background_tasks.spawn(to_spawn())
-
         await cache_community_types(self.community_types)
 
     async def _shutdown(self) -> None:
         """Closes any underlying sessions.
         """
 
-        await Sessions.smtp.quit()
-        await Sessions.database.disconnect()
-        await Sessions.aiohttp.close()
+        await self.base_settings.shutdown()
         await Sessions.cache.close()
 
         if Config.upload_type == B2UploadSettings:
             await self.b2.close()
-
-        await self.background_tasks.close()

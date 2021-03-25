@@ -40,7 +40,8 @@ setup(
         "SQLMatches.user",
         "SQLMatches.stripe",
         "SQLMatches.templates",
-        "SQLMatches.tests"
+        "SQLMatches.tests",
+        "SQLMatches.settings"
     ],
     python_requires=">=3.6",
     include_package_data=True,
