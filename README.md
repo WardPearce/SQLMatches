@@ -25,7 +25,7 @@ This is the development edge branch, code might **not work**. Please use the mas
 - Add `hosted` scope, so `self-hosting` setup is simple.
 - Remove `bulk_scoreboard_expire` &`bulk_community_expire`.
 - Cache less, cache smarter.
-- Change `CacheBase.expir` to `CacheBase.delete`.
+- Change `CacheBase.expire` to `CacheBase.delete`.
 - Add Public / Private data support for `CacheBase`.
 - Change `stripe_webhook` scope to use stripes validation method instead of a key.
 - Change scopes to be `camel cased`.
