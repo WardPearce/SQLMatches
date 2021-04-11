@@ -54,11 +54,11 @@ from .routes.errors import auth_error
 
 from .key_loader import KeyLoader
 
-from .constants import MAP_IMAGES, COMMUNITY_TYPES
+from .constants import MAP_IMAGES
 
 
 __version__ = "1.0.0"
-__url__ = "https://github.com/WardPearce/SQLMatches"
+__url__ = "https://github.com/SQLMatches"
 __description__ = "SQLMatches, match & demos recorder."
 __author__ = "WardPearce"
 __author_email__ = "wardpearce@protonmail.com"
@@ -79,7 +79,6 @@ class SQLMatches(Starlette):
                  map_images: Dict[str, str] = MAP_IMAGES,
                  free_upload_size: float = 30.0,
                  max_upload_size: float = 100.0,
-                 community_types: List[str] = COMMUNITY_TYPES,
                  match_timeout: timedelta = timedelta(hours=3),
                  demo_expires: timedelta = timedelta(weeks=20),
                  clear_cache: bool = True,
@@ -136,7 +135,6 @@ class SQLMatches(Starlette):
         Config.demo_expires = demo_expires
         Config.upload = upload_settings
 
-        self.__community_types = community_types
         self.__clear_cache = clear_cache
 
         super().__init__(

@@ -34,11 +34,3 @@ MAP_IMAGES = {
     "de_overpass": "overpass.jpg",
     "de_train": "train.jpg",
 }
-
-
-COMMUNITY_TYPES = [
-    "personal",
-    "community",
-    "team",
-    "organization"
-]
