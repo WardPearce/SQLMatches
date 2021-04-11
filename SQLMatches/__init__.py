@@ -81,7 +81,6 @@ class SQLMatches(Starlette):
                  max_upload_size: float = 100.0,
                  match_timeout: timedelta = timedelta(hours=3),
                  demo_expires: timedelta = timedelta(weeks=20),
-                 clear_cache: bool = True,
                  **kwargs) -> None:
 
         self.__base_settings = base_settings
@@ -134,8 +133,6 @@ class SQLMatches(Starlette):
         Config.match_timeout = match_timeout
         Config.demo_expires = demo_expires
         Config.upload = upload_settings
-
-        self.__clear_cache = clear_cache
 
         super().__init__(
             routes=self.__routes,
@@ -220,8 +217,7 @@ class SQLMatches(Starlette):
                 "Memory cache being used, use redis for production."
             )
 
-        if self.__clear_cache:
-            await Sessions.cache.clear()
+        await Sessions.cache.clear()
 
         if Config.upload_type == B2UploadSettings:
             await self.b2.authorize()
