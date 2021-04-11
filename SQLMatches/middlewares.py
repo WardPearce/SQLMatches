@@ -36,11 +36,6 @@ from starlette.authentication import (
 )
 from starlette.requests import Request
 
-from .community import (
-    Community,
-    api_key_to_community,
-    get_community_from_owner
-)
 from .resources import Config
 from .exceptions import InvalidAPIKey, NoOwnership
 
@@ -67,85 +62,4 @@ class APIAuthentication(AuthenticationBackend):
         AuthenticationError
         """
 
-        if "Authorization" in request.headers:
-            auth = request.headers["Authorization"]
-            try:
-                scheme, credentials = auth.split()
-                if scheme.lower() != "basic":
-                    return
-                decoded = b64decode(credentials).decode("ascii")
-            except (ValueError, UnicodeDecodeError, binascii.Error):
-                raise AuthenticationError(AUTH_ERROR)
-
-            username, _, password = decoded.partition(":")
-
-            try:
-                request.state.community, master = await api_key_to_community(
-                    password
-                )
-            except InvalidAPIKey:
-                raise AuthenticationError(AUTH_ERROR)
-            else:
-                return AuthCredentials([
-                    "community", "master" if master else None
-                ]), SimpleUser(username)
-
-        elif "steam_id" in request.session:
-            scopes = ["steam_login"]
-
-            if "community_name" in request.query_params:
-                scopes.append("community")
-
-                if ("check_ownership" in request.query_params and
-                        request.query_params["check_ownership"].lower()
-                        == "true"):
-                    try:
-                        (
-                            community,
-                            banned,
-                            active_subscription
-                        ) = await get_community_from_owner(
-                            request.session["steam_id"])
-
-                        if banned:
-                            return
-                    except NoOwnership:
-                        pass
-                    else:
-                        if (community.community_name ==
-                                request.query_params["community_name"]):
-                            scopes.append("is_owner")
-
-                            if ("check_subscription" in request.query_params
-                                and request.query_params["check_subscription"]
-                                .lower() == "true" and
-                                    active_subscription):
-
-                                model = await community.get()
-                                if (model and model.subscription_expires >=
-                                        datetime.now()):
-                                    scopes.append("active_subscription")
-
-                request.state.community = Community(
-                    request.query_params["community_name"]
-                )
-
-            if("check_root" in request.query_params and
-               request.query_params["check_root"].lower() == "true" and
-               bcrypt.checkpw(request.session["steam_id"].encode(),
-                              Config.root_steam_id_hashed)):
-
-                scopes.append("root_login")
-
-            return (
-                AuthCredentials(scopes),
-                SimpleUser(request.session["steam_id"])
-            )
-
-        elif "webhook_key" in request.query_params:
-            if bcrypt.checkpw(request.query_params["webhook_key"].encode(),
-                              Config.root_webhook_key_hashed):
-                return (
-                    AuthCredentials(["stripe_webhook"]),
-                    SimpleUser("")
-                )
+        pass

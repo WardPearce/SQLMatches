@@ -21,6 +21,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 
+from SQLMatches.settings.upload import S3UploadSettings
 import logging
 import aiofiles
 
@@ -56,6 +57,9 @@ class Demo:
         if Config.upload_type == B2UploadSettings:
             self.upload = self.__b2_upload
             self.delete = self.__b2_delete
+        elif Config.upload_type == S3UploadSettings:
+            self.upload = self.__s3_upload
+            self.delete = self.__s3_delete
         elif Config.upload_type == LocalUploadSettings:
             self.upload = self.__local_upload
             self.delete = self.__local_delete
@@ -86,6 +90,13 @@ class Demo:
             scoreboard_total_table.c.match_id == self.match.match_id,
             scoreboard_total_table.c.community_name ==
             self.match.community_name
+        )
+
+    async def __cdn_id(self) -> str:
+        return await Sessions.database.fetch_val(
+            select([scoreboard_total_table.c.cdn_id]).select_from(
+                scoreboard_total_table
+            ).where(self.__where_statement)
         )
 
     async def __invalid_upload(self, total_size: int) -> bool:
@@ -149,23 +160,35 @@ class Demo:
             await self.__update_value(demo_status=4)
             return True
 
-    async def __b2_delete(self) -> bool:
-        b2_id = await Sessions.database.fetch_val(
-            select([scoreboard_total_table.c.b2_id]).select_from(
-                scoreboard_total_table
-            ).where(self.__where_statement)
+    async def __s3_delete(self) -> bool:
+        await Sessions.bucket.delete_object(
+            Bucket=Config.upload.bucket_id, Key=self.__demo_pathway
         )
 
-        if not b2_id:
+    async def __b2_delete(self) -> bool:
+        cdn_id = await self.__cdn_id()
+        if not cdn_id:
             return False
 
         try:
-            await (Sessions.bucket.file(b2_id)).delete(self.__demo_pathway)
+            await (Sessions.bucket.file(cdn_id)).delete(self.__demo_pathway)
         except BackblazeException as error:
             logging.warning("Backblaze failed because of\n{}".format(error))
             return False
         else:
             await self.__update_value(demo_status=4)
+            return True
+
+    async def __s3_upload(self) -> bool:
+        try:
+            await Sessions.bucket.get_object(
+                Bucket=Config.upload.bucket_id,
+                Key=self.__demo_pathway,
+                Body=await self.request.body()
+            )
+        except Exception:
+            return False
+        else:
             return True
 
     async def __local_upload(self) -> bool:
@@ -231,7 +254,7 @@ class Demo:
                     content_type=content_type
                 ), chunked)
 
-                await self.__update_value(b2_id=model.file_id)
+                await self.__update_value(cdn_id=model.file_id)
 
                 return True
             else:
@@ -244,6 +267,6 @@ class Demo:
         else:
             await parts.finish()
 
-            await self.__update_value(b2_id=model.file_id)
+            await self.__update_value(cdn_id=model.file_id)
 
             return True

@@ -66,6 +66,30 @@ class B2UploadSettings(__Extension):
         self.pathway = pathway
 
 
+class S3UploadSettings(__Extension):
+    def __init__(self, bucket_id: str, region_name: str,
+                 secret_access_key: str, access_key_id: str,
+                 cdn_url: str, *args, **kwargs) -> None:
+        """S3 Settings
+
+        Parameters
+        ----------
+        bucket_id : str
+        region_name : str
+        secret_access_key : str
+        access_key_id : str
+        cdn_url : str
+        """
+
+        super().__init__(*args, **kwargs)
+
+        self.region_name = region_name
+        self.bucket_id = bucket_id
+        self.secret_access_key = secret_access_key
+        self.access_key_id = access_key_id
+        self.cdn_url = cdn_url if cdn_url[-1:] == "/" else cdn_url + "/"
+
+
 class LocalUploadSettings(__Extension):
     def __init__(self, pathway: str = None, *args, **kwargs) -> None:
         """Used to upload demos locally, not recommend!

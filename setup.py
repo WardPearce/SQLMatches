@@ -33,15 +33,6 @@ setup(
     install_requires=get_requirements(),
     license=get_variable("__license__"),
     packages=[
-        "SQLMatches",
-        "SQLMatches.community",
-        "SQLMatches.routes",
-        "SQLMatches.routes.api",
-        "SQLMatches.user",
-        "SQLMatches.stripe",
-        "SQLMatches.templates",
-        "SQLMatches.tests",
-        "SQLMatches.settings"
     ],
     python_requires=">=3.6",
     include_package_data=True,
