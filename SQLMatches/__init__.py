@@ -35,7 +35,7 @@ from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 
 from SQLMatchesBase import SQLMatchesBase
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 from datetime import timedelta
 from aiocache import Cache
 
