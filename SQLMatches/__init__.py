@@ -79,6 +79,7 @@ class SQLMatches(Starlette):
                  map_images: Dict[str, str] = MAP_IMAGES,
                  free_upload_size: float = 30.0,
                  max_upload_size: float = 100.0,
+                 self_hosted: bool = True,
                  match_timeout: timedelta = timedelta(hours=3),
                  demo_expires: timedelta = timedelta(weeks=20),
                  **kwargs) -> None:
@@ -133,6 +134,7 @@ class SQLMatches(Starlette):
         Config.match_timeout = match_timeout
         Config.demo_expires = demo_expires
         Config.upload = upload_settings
+        Config.self_hosted = self_hosted
 
         super().__init__(
             routes=self.__routes,

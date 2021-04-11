@@ -72,6 +72,8 @@ class Config:
     match_timeout: timedelta
     demo_expires: timedelta
 
+    self_hosted: bool
+
     free_upload_size: float
     max_upload_size: float
 

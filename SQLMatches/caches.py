@@ -29,7 +29,7 @@ class CacheBase:
     def __init__(self, key: str) -> None:
         self.key = key
 
-    async def expire(self) -> None:
+    async def delete(self) -> None:
         await Sessions.cache.delete(self.key)
 
     async def set(self, value: Any, ttl=None) -> None:

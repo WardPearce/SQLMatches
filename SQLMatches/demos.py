@@ -114,24 +114,28 @@ class Demo:
         """
 
         if total_size == 0:
-            return False
-
-        allow_max_upload = bool(await Sessions.database.fetch_val(
-            select([func.count()]).select_from(community_table).where(
-                and_(
-                    community_table.c.community_name ==
-                    self.match.community_name,
-                    community_table.c.subscription_expires >= datetime.now()
-                )
-            )
-        ))
+            return True
 
         size_in_mb = total_size / 1000000
 
-        return (
-            size_in_mb > Config.max_upload_size if allow_max_upload
-            else size_in_mb > Config.free_upload_size
-        )
+        if Config.self_hosted:
+            return size_in_mb > Config.max_upload_size
+        else:
+            allow_max_upload = bool(await Sessions.database.fetch_val(
+                select([func.count()]).select_from(community_table).where(
+                    and_(
+                        community_table.c.community_name ==
+                        self.match.community_name,
+                        community_table.c.subscription_expires >=
+                        datetime.now()
+                    )
+                )
+            ))
+
+            return (
+                size_in_mb > Config.max_upload_size if allow_max_upload
+                else size_in_mb > Config.free_upload_size
+            )
 
     async def __update_value(self, **kwargs) -> None:
         await Sessions.database.execute(
