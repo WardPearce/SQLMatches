@@ -16,6 +16,7 @@ This is the development edge branch, code might **not work**. Please use the mas
 - Increase hosted version max upload to 150 MB.
 - Improve `DemoQueue` to not be some messy dict.
 - Use [GetPublishedFileDetails](https://steamapi.xpaw.me/#ISteamRemoteStorage/GetPublishedFil) to get workshop map images.
+- Add S3 support.
 - Indepth scoping.
 - Public / Private data for `api_schema`.
 - Make `match_ender` a background timeout instead of a loop.
