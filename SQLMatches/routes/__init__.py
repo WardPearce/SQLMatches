@@ -21,60 +21,15 @@ DEALINGS IN THE SOFTWARE.
 """
 
 
-import socketio
-
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 
 from webargs_starlette import WebargsHTTPException
 
-from ..exceptions import SQLMatchesException
-from ..resources import Config, Sessions
+from ..resources import Config
 
 # Routes
-from .api.matches import (
-    MatchAPI,
-    CreateMatchAPI,
-    DemoUploadAPI,
-    MatchesAPI
-)
-from .api.players import CommunityPlayersAPI
-from .api.community import (
-    CommunityOwnerAPI,
-    CommunityCreateAPI,
-    CommunityOwnerMatchesAPI,
-    CommunityUpdateAPI,
-    CommunityExistsAPI,
-    PublicCommunityAPI,
-    CommunitySessionAPI
-)
-from .api.key import KeyAPI
-from .api.communities import (
-    CommunitiesAPI,
-    CommunityMatchesAPI,
-    MatchesCommunitiesAPI
-)
-from .api.admin import (
-    CommunitiesAdminAPI,
-    AdminAPI,
-    SavePluginAPI
-)
-from .api.version import VersionAPI, VersionsAPI
-from .api.profile import ProfileAPI, SteamProfileCors
-from .api.server import ServerAPI, ServersAPI
-from .api.auto_setup import AutoSetupAPI
-
-# A bit gross, but because socketio uses singletons, we
-# need to do this.
-from .websockets import *  # noqa: F403, F401
-
-from .webhooks import (
-    PaymentFailedWebhook,
-    PaymentSuccessWebhook
-)
-
-from .download import DownloadPage
 from .steam import (
     SteamValidate,
     SteamLogin,
@@ -82,15 +37,13 @@ from .steam import (
 )
 from .errors import (
     server_error,
-    payload_error,
-    internal_error
+    payload_error
 )
 
 
 ERROR_HANDLERS = {
     WebargsHTTPException: payload_error,
-    HTTPException: server_error,
-    SQLMatchesException: internal_error
+    HTTPException: server_error
 }
 
 
@@ -102,55 +55,5 @@ ROUTES = [
             Route("/logout", SteamLogout)
         ]),
         Mount("/maps/", StaticFiles(directory=Config.maps_dir), name="maps"),
-        Route("/matches/", MatchesAPI),  # Tested - POST @ 0.2.0
-        Mount("/match", routes=[
-            Route("/create/", CreateMatchAPI),  # Tested - POST @ 0.2.0
-            Mount("/{match_id}", routes=[
-                Route("/", MatchAPI),  # Tested - GET, POST, DELETE @ 0.2.0
-                Route("/upload/", DemoUploadAPI),
-                Route("/download/", DownloadPage, name="DownloadPage")
-            ])
-        ]),
-        Route("/players/", CommunityPlayersAPI),
-        Mount("/profile/{steam_id}", routes=[
-            Route("/cros/", SteamProfileCors),
-            Route("/", ProfileAPI)
-        ]),
-        Mount("/version", routes=[
-            Route("/{major:int}/{minor:int}/{patch:int}/", VersionAPI),
-            Route("/", VersionsAPI)
-        ]),
-        Route("/servers/", ServersAPI),
-        Route("/server/{ip:str}/{port:int}/", ServerAPI),
-        Mount("/community", routes=[
-            Route("/exists/", CommunityExistsAPI),
-            Mount("/owner", routes=[
-                Route("/", CommunityOwnerAPI),
-                Route("/matches/", CommunityOwnerMatchesAPI),
-                Route("/update/", CommunityUpdateAPI),
-                Route("/stripe-session/", CommunitySessionAPI),
-                Route("/autosetup/", AutoSetupAPI)
-            ]),
-            Route("/key/", KeyAPI),
-            Route("/public/", PublicCommunityAPI),
-            Route("/", CommunityCreateAPI),
-        ]),
-        Mount("/communities", routes=[
-            Route("/", CommunitiesAPI),
-            Route("/matches/", CommunityMatchesAPI),
-            Route("/all/", MatchesCommunitiesAPI)
-        ]),
-        Mount("/admin", routes=[
-            Route("/communities/", CommunitiesAdminAPI),
-            Route("/plugins/", SavePluginAPI),
-            Route("/", AdminAPI)
-        ]),
-    ]),
-    Mount("/ws/", socketio.ASGIApp(Sessions.websocket)),
-    Mount("/webhook", routes=[
-        Mount("/payment", routes=[
-            Route("/fail/", PaymentFailedWebhook),
-            Route("/success/", PaymentSuccessWebhook)
-        ])
     ])
 ]

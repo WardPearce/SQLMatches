@@ -26,7 +26,6 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 from re import search
-from asyncio import sleep
 from urllib.parse import urlencode
 
 from ..resources import Config, Sessions
@@ -80,8 +79,6 @@ class SteamValidate(HTTPEndpoint):
 
                 if item_arg in params and params[item_arg] not in validation:
                     validation[item_arg] = params[item_arg]
-
-                await sleep(0.000001)
 
             validation["openid.mode"] = "check_authentication"
 
