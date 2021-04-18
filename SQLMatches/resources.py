@@ -80,8 +80,6 @@ class Config:
     frontend_url: str
     backend_url: str
 
-    map_images: list
-
     upload_type: Any
 
     community_types: Dict[str, int] = {}

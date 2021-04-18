@@ -35,7 +35,7 @@ from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 
 from SQLMatchesBase import SQLMatchesBase
-from typing import Dict, Tuple
+from typing import Tuple
 from datetime import timedelta
 from aiocache import Cache
 
@@ -53,8 +53,6 @@ from .routes import ROUTES, ERROR_HANDLERS
 from .routes.errors import auth_error
 
 from .key_loader import KeyLoader
-
-from .constants import MAP_IMAGES
 
 
 __version__ = "1.0.0"
@@ -76,7 +74,6 @@ class SQLMatches(Starlette):
                      S3UploadSettings,
                      LocalUploadSettings
                  ] = None,
-                 map_images: Dict[str, str] = MAP_IMAGES,
                  free_upload_size: float = 30.0,
                  max_upload_size: float = 100.0,
                  self_hosted: bool = True,
@@ -125,7 +122,6 @@ class SQLMatches(Starlette):
         else:
             exception_handlers = ERROR_HANDLERS
 
-        Config.map_images = map_images
         Config.free_upload_size = free_upload_size
         Config.max_upload_size = max_upload_size
         Config.root_steam_id_hashed = bcrypt.hashpw(

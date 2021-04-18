@@ -22,12 +22,9 @@ DEALINGS IN THE SOFTWARE.
 
 
 from starlette.routing import Route, Mount
-from starlette.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 
 from webargs_starlette import WebargsHTTPException
-
-from ..resources import Config
 
 # Routes
 from .steam import (
@@ -54,6 +51,5 @@ ROUTES = [
             Route("/validate", SteamValidate),
             Route("/logout", SteamLogout)
         ]),
-        Mount("/maps/", StaticFiles(directory=Config.maps_dir), name="maps"),
     ])
 ]
