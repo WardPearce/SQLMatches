@@ -36,9 +36,6 @@ from starlette.authentication import (
 )
 from starlette.requests import Request
 
-from .resources import Config
-from .exceptions import InvalidAPIKey, NoOwnership
-
 
 AUTH_ERROR = "Invalid basic auth credentials"
 

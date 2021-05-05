@@ -23,36 +23,23 @@ DEALINGS IN THE SOFTWARE.
 import uvicorn
 
 from SQLMatches import SQLMatches
-from SQLMatches.settings import (
-    DatabaseSettings,
-    LocalUploadSettings,
-    StripeSettings,
-    SmtpSettings
-)
+
+from SQLMatchesBase import SQLMatchesBase
+from SQLMatchesBase.settings.database import DatabaseSettings
 
 
 app = SQLMatches(
-    database_settings=DatabaseSettings(
-        username="sqlmatches",
-        password="Y2ZRSsje9qZHsxDu",
-        server="localhost",
-        port=3306,
-        database="sqlmatches"
+    SQLMatchesBase(
+        database_settings=DatabaseSettings(
+            username="sqlmatches",
+            password="Y2ZRSsje9qZHsxDu",
+            server="localhost",
+            port=3306,
+            database="sqlmatches"
+        ),
+        backend_url="http://localhost/api",
+        frontend_url="http://localhost",
     ),
-    stripe_settings=StripeSettings(
-        api_key="...",
-        price_id="...",
-        testing=False
-    ),
-    smtp_settings=SmtpSettings(
-        hostname="127.0.0.1",
-        port=25,
-        use_tls=False,
-        email="noreply@127.0.0.1"
-    ),
-    upload_settings=LocalUploadSettings(),
-    backend_url="http://localhost/api",
-    frontend_url="http://localhost",
     root_steam_id="76561198077228213"
 )
 

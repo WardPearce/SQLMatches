@@ -33,14 +33,6 @@ from aiocache import Cache
 from datetime import timedelta
 from aiosmtplib import SMTP
 
-from .settings import (
-    B2UploadSettings,
-    DatabaseSettings,
-    SmtpSettings,
-    StripeSettings,
-    WebhookSettings
-)
-
 
 class Sessions:
     database: Database
@@ -62,12 +54,6 @@ class Config:
         "maps"
     )
     steam_openid_url = "https://steamcommunity.com/openid/login"
-
-    stripe: StripeSettings
-    webhook: WebhookSettings
-    upload: B2UploadSettings
-    smtp: SmtpSettings
-    database: DatabaseSettings
 
     match_timeout: timedelta
     demo_expires: timedelta

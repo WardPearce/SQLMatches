@@ -145,38 +145,38 @@ class SQLMatches(Starlette):
         """Creates needed sessions.
         """
 
-        if Config.upload_settings:
-            if isinstance(Config.upload_settings, B2UploadSettings):
+        if Config.upload:
+            if isinstance(Config.upload, B2UploadSettings):
                 Config.upload_type = B2UploadSettings
 
                 self.b2 = backblaze.Awaiting(
-                    Config.upload_settings.key_id,
-                    Config.upload_settings.application_key
+                    Config.upload.key_id,
+                    Config.upload.application_key
                 )
 
                 Sessions.bucket = self.b2.bucket(
-                    Config.upload_settings.bucket_id
+                    Config.upload.bucket_id
                 )
 
-            elif isinstance(Config.upload_settings, S3UploadSettings):
+            elif isinstance(Config.upload, S3UploadSettings):
                 Config.upload_type = S3UploadSettings
 
                 Sessions.bucket = await (
                     aiobotocore.get_session()
                 ).create_client(
                     "s3",
-                    region_name=Config.upload_settings.region_name,
+                    region_name=Config.upload.region_name,
                     aws_secret_access_key=(
-                        Config.upload_settings.secret_access_key
+                        Config.upload.secret_access_key
                     ),
-                    aws_access_key_id=Config.upload_settings.access_key_id
+                    aws_access_key_id=Config.upload.access_key_id
                 ).__aenter__()
 
                 logger.warning("""Unlike B2, S3 requires the entire
                 demo to be downloaded into memory in-order to upload it.
                 For scalability B2 allows to upload demos in 5mb parts.""")
 
-            elif isinstance(Config.upload_settings, LocalUploadSettings):
+            elif isinstance(Config.upload, LocalUploadSettings):
                 Config.upload_type = LocalUploadSettings
 
                 # Dynamically adding mount if local storage.
@@ -189,7 +189,7 @@ class SQLMatches(Starlette):
                             Mount(
                                 "/demos/",
                                 StaticFiles(
-                                    directory=Config.upload_settings.pathway
+                                    directory=Config.upload.pathway
                                 )
                             )
                         )
@@ -200,7 +200,7 @@ class SQLMatches(Starlette):
                     Use B2 or S3 for production."""
                 )
             else:
-                raise Exception("Invalid `Config.upload_settings` class.")
+                raise Exception("Invalid `Config.upload` class.")
         else:
             Config.upload_type = None
 
